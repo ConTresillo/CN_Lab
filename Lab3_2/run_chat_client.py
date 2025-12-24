@@ -1,0 +1,9 @@
+# run_chat_client.py
+
+#Header
+
+def main():
+    pass
+
+if __name__ == '__main__':
+    main()
