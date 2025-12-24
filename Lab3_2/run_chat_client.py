@@ -1,9 +1,6 @@
-# run_chat_client.py
+from client_gui import ClientGUI
+from client_logic import ChatClient # Updated import
 
-#Header
-
-def main():
-    pass
-
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    gui = ClientGUI(client_class=ChatClient)
+    gui.start()

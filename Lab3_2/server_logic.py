@@ -5,7 +5,7 @@ from typing import Callable, List, Tuple, Optional
 
 class ChatServer:
     """
-    Handles Chat Logic: Broadcasts and Private Messages.
+    Handles Chat Logic: Broadcasts, Private Messages, and Shutdown.
     """
 
     def __init__(self, host: str = "127.0.0.1", port: int = 5000) -> None:
@@ -28,7 +28,11 @@ class ChatServer:
                 conn, addr = self.server.accept()
 
                 # Receive Username first
-                username = conn.recv(1024).decode()
+                try:
+                    username = conn.recv(1024).decode()
+                except:
+                    conn.close()
+                    continue
 
                 # Add to list
                 self.clients.append((username, conn))
@@ -56,23 +60,16 @@ class ChatServer:
 
                 # ---- ROUTING LOGIC ----
                 if msg.startswith("@"):
-                    # Private Message format: @target message
                     parts = msg.split(" ", 1)
                     if len(parts) > 1:
-                        target = parts[0][1:]  # remove @
+                        target = parts[0][1:]
                         content = parts[1]
-
-                        # SERVER LOGS: Privacy protected (Content not shown)
                         log_callback(f"[LOG]: {username} sent private msg to {target}")
-
                         self.send_private(target, username, content, conn)
                     else:
-                        # Invalid format
                         self.send_system_msg(conn, "Usage: @username message")
                 else:
-                    # Public Message
                     log_callback(f"[{username}]: {msg}")
-                    # Broadcast to everyone ELSE (No Echo)
                     self.broadcast(f"[{username}]: {msg}", sender_socket=conn)
 
             except:
@@ -81,7 +78,6 @@ class ChatServer:
         self.remove_client(username, conn, log_callback)
 
     def broadcast(self, message: str, sender_socket: Optional[socket.socket]) -> None:
-        """Send to everyone EXCEPT the sender."""
         for _, sock in self.clients:
             if sock != sender_socket:
                 try:
@@ -97,14 +93,12 @@ class ChatServer:
                 break
 
         if target_sock:
-            # Send to target
             formatted = f"(Private) [{sender_user}]: {msg}"
             try:
                 target_sock.sendall(formatted.encode())
             except:
                 pass
         else:
-            # User not found
             self.send_system_msg(sender_sock, f"User '{target_user}' not found or offline.")
 
     def send_system_msg(self, conn: socket.socket, msg: str) -> None:
@@ -116,11 +110,36 @@ class ChatServer:
     def remove_client(self, username: str, conn: socket.socket, log_callback: Callable) -> None:
         if (username, conn) in self.clients:
             self.clients.remove((username, conn))
+            log_callback(f"[SERVER]: {username} disconnected")
 
-        log_callback(f"[SERVER]: {username} disconnected")
-        self.broadcast(f"[SYSTEM]: {username} left the chat.", None)
-        conn.close()
+            # Use sender_socket=conn so the leaving user DOES NOT receive this message
+            self.broadcast(f"[SYSTEM]: {username} left the chat.", sender_socket=conn)
+
+        try:
+            conn.close()
+        except:
+            pass
 
     def stop(self) -> None:
+        """
+        Stops the server and forcefully closes all client connections.
+        """
         self.running = False
-        if self.server: self.server.close()
+
+        # 1. Close Server Socket (Stops new connections)
+        if self.server:
+            try:
+                self.server.close()
+            except:
+                pass
+
+        # 2. Force Close All Client Sockets
+        # We iterate over a copy [:] because remove_client modifies the list
+        for username, conn in self.clients[:]:
+            try:
+                conn.shutdown(socket.SHUT_RDWR)  # Force interrupt recv()
+                conn.close()
+            except:
+                pass
+
+        self.clients.clear()
