@@ -23,7 +23,7 @@ class EchoServer:
         self.server.settimeout(1.0)
 
         self.running = True
-        log_callback(f"[server]: Listening on {self.host}:{self.port}")
+        log_callback(f"[SERVER]: Listening on {self.host}:{self.port}")
 
         while self.running:
             try:
@@ -43,7 +43,7 @@ class EchoServer:
                 continue
 
             self.clients.append((username, conn))
-            log_callback(f"[server]: Connected to {username} at {addr}")
+            log_callback(f"[SERVER]: Connected to {username} at {addr}")
 
             threading.Thread(
                 target=self.handle_client,
@@ -70,6 +70,7 @@ class EchoServer:
                 # NORMAL CHAT MESSAGE
                 log_callback(f"[{username}]: {msg}")
                 conn.sendall(msg.encode())
+                log_callback(f"[SERVER → {username}]: {msg}")
 
             except socket.timeout:
                 continue
@@ -77,7 +78,7 @@ class EchoServer:
                 break
 
         # CLEAN DISCONNECT (not a message)
-        log_callback(f"[server]: {username} disconnected")
+        log_callback(f"[SERVER] : {username} disconnected")
 
         try:
             conn.close()
@@ -89,12 +90,22 @@ class EchoServer:
     def stop(self) -> None:
         """
         Stop server and notify all clients explicitly.
+        Wait for all client threads to finish before returning.
         """
         self.running = False
 
-        for _, conn in self.clients:
+        # --- Close listening socket first ---
+        if self.server:
             try:
-                conn.sendall("__SERVER_SHUTDOWN__".encode())
+                self.server.close()
+            except Exception:
+                pass
+            self.server = None
+
+        # --- Notify clients and close connections ---
+        for username, conn in self.clients:
+            try:
+                conn.sendall("__SERVER_SHUTDOWN__".encode())  # optional: informs client
             except Exception:
                 pass
             try:
@@ -106,11 +117,12 @@ class EchoServer:
             except Exception:
                 pass
 
-        self.clients.clear()
+        # --- Wait for client threads to finish ---
+        for t in getattr(self, "client_threads", []):
+            t.join()
 
-        if self.server:
-            try:
-                self.server.close()
-            except Exception:
-                pass
-            self.server = None
+        # --- Clear client list and thread list ---
+        self.clients.clear()
+        if hasattr(self, "client_threads"):
+            self.client_threads.clear()
+
