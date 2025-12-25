@@ -50,9 +50,19 @@ class ClientGUI:
         )
         self.output.pack(padx=10, pady=5)
 
-        self.output.tag_config("me", foreground="#1E5EFF", font=("Segoe UI", 10, "bold"))
-        self.output.tag_config("others", foreground="#008000", font=("Segoe UI", 10))
-        self.output.tag_config("system", foreground="#B00020", font=("Segoe UI", 10, "bold"))
+        # ---- COLOR TAGS ----
+        self.output.tag_config(
+            "me", foreground="#1E5EFF", font=("Segoe UI", 10, "bold")
+        )
+        self.output.tag_config(
+            "others", foreground="#008000", font=("Segoe UI", 10)
+        )
+        self.output.tag_config(
+            "private", foreground="#808080", font=("Segoe UI", 10, "italic")
+        )
+        self.output.tag_config(
+            "system", foreground="#B00020", font=("Segoe UI", 10, "bold")
+        )
 
         # ---- Message input ----
         self.msg_entry = tk.Entry(self.root, width=50, state="disabled")
@@ -77,7 +87,14 @@ class ClientGUI:
             msg = self.client.receive()
             if msg is None:
                 break
-            self.write_log(msg, "others")
+
+            # ---- COLOR ROUTING (FIXED) ----
+            if msg.startswith("[PRIVATE]"):
+                self.write_log(msg, "private")
+            elif msg.startswith("[SYSTEM]"):
+                self.write_log(msg, "system")
+            else:
+                self.write_log(msg, "others")
 
         self.on_disconnect()
 
@@ -89,7 +106,20 @@ class ClientGUI:
             return
 
         self.msg_entry.delete(0, "end")
-        self.write_log(f"[Me]: {msg}", "me")
+
+        # ---- PRIVATE MESSAGE ----
+        if msg.startswith("@"):
+            parts = msg.split(" ", 1)
+            target = parts[0][1:]
+            content = parts[1] if len(parts) > 1 else ""
+
+            # Local echo MUST match server protocol
+            self.write_log(
+                f"[PRIVATE] Me → {target}: {content}",
+                "private"
+            )
+        else:
+            self.write_log(f"[Me]: {msg}", "me")
 
         try:
             self.client.send(msg)
@@ -99,9 +129,12 @@ class ClientGUI:
     def toggle_connection(self) -> None:
         if not self.connected:
             try:
-                username = self.user_entry.get()
-                host = self.host_entry.get()
-                port = int(self.port_entry.get())
+                username = self.user_entry.get().strip()
+                host = self.host_entry.get().strip()
+                port = int(self.port_entry.get().strip())
+
+                if not username:
+                    raise ValueError("Username cannot be empty")
 
                 self.client.connect(host, port, username)
 
@@ -110,7 +143,10 @@ class ClientGUI:
                 self.msg_entry.config(state="normal")
                 self.send_btn.config(state="normal")
 
-                threading.Thread(target=self.listen_loop, daemon=True).start()
+                threading.Thread(
+                    target=self.listen_loop, daemon=True
+                ).start()
+
                 self.write_log("[SYSTEM]: Connected", "system")
 
             except Exception as e:

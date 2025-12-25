@@ -74,7 +74,7 @@ class ChatServer:
                         target = parts[0][1:]
                         content = parts[1]
                         log_callback(
-                            f"[LOG]: {username} → (private) {target}"
+                            f"[LOG]: {username} → {target}"
                         )
                         self.send_private(target, username, content, conn)
                     else:
@@ -109,22 +109,24 @@ class ChatServer:
                     pass
 
     def send_private(
-        self,
-        target_user: str,
-        sender_user: str,
-        msg: str,
-        sender_sock: socket.socket
+            self,
+            target_user: str,
+            sender_user: str,
+            msg: str,
+            sender_sock: socket.socket
     ) -> None:
         for user, sock in self.clients:
             if user == target_user:
                 try:
+                    # Canonical private message format
                     sock.sendall(
-                        f"(Private) [{sender_user}]: {msg}".encode()
+                        f"[PRIVATE] {sender_user} → {target_user}: {msg}".encode()
                     )
                 except:
                     pass
                 return
 
+        # Target user not found
         self.send_system_msg(
             sender_sock,
             f"User '{target_user}' not found or offline."
