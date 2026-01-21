@@ -5,16 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0df84092-d95e-4594-9d6d-f6d10880f67b" name="Changes" comment="wddw">
-      <change afterPath="$PROJECT_DIR$/Lab5/chat_client.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Lab5/chat_server.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Lab5/file_receiver.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Lab5/file_sender.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Lab5/hub_client.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Lab5/hub_server.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/CN_Lab.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/CN_Lab.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.obsidian/workspace.json" beforeDir="false" afterPath="$PROJECT_DIR$/.obsidian/workspace.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -233,7 +225,7 @@
       <workItem from="1768226276928" duration="199000" />
       <workItem from="1768226485181" duration="423000" />
       <workItem from="1768226919449" duration="10736000" />
-      <workItem from="1769005674233" duration="1497000" />
+      <workItem from="1769005674233" duration="2470000" />
     </task>
     <task id="LOCAL-00001" summary="wddw">
       <option name="closed" value="true" />
@@ -251,7 +243,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768236885579</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="wddw">
+      <option name="closed" value="true" />
+      <created>1769007463773</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1769007463773</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

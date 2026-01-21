@@ -1,7 +1,7 @@
 # file_sender.py
 import socket
 
-SERVER = (" 192.168.1.9", 7777)
+SERVER = ("192.168.1.9", 7777)
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 filename = "send.txt"

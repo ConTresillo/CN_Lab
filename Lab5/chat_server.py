@@ -2,7 +2,7 @@
 import socket
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-sock.bind((" 192.168.1.9", 8888))
+sock.bind(("192.168.1.9", 8888))
 
 users = {}
 

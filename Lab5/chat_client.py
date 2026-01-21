@@ -2,7 +2,7 @@
 import socket
 import threading
 
-SERVER = (" 192.168.1.9", 8888)
+SERVER = ("192.168.1.9", 8888)
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 

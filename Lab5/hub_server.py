@@ -1,7 +1,7 @@
 # hub_server.py
 import socket
 
-SERVER_IP = " 192.168.1.9"
+SERVER_IP = "192.168.1.9"
 SERVER_PORT = 9999
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
